@@ -1,9 +1,9 @@
 const ical = require('ical-generator');
+const http = require('http');
 const getEpisodes = require('./get-episodes');
 
-const calendar = ical({name: 'Programació de TV3'});
-
 (async () => {
+  const calendar = ical({name: 'Programació de TV3'});
   (await getEpisodes()).forEach(episode => {
     calendar.createEvent({
       start: episode.start,
@@ -11,5 +11,7 @@ const calendar = ical({name: 'Programació de TV3'});
       summary: episode.title
     });
   });
-  process.stdout.write(calendar.toString());
+  http
+    .createServer((req, res) => calendar.serve(res))
+    .listen(process.env.PORT || 5000);
 })();
