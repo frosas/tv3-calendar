@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "start": "node src",
-    "watch": "nodemon -q -w src -x 'npm start'"
+    "watch": "PORT=5000 nodemon -q -w src -x 'npm start'"
   },
   "dependencies": {
     "ical-generator": "^0.2.10",
