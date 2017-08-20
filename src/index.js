@@ -9,7 +9,13 @@ const getEpisodes = require('./get-episodes');
     calendar.createEvent({
       start: episode.start,
       end: episode.end,
-      summary: episode.title
+      summary: (() => {
+        let summary = episode.program.title;
+        if (episode.title) summary = `${summary} - ${episode.title}`;
+        return summary;
+      })(),
+      description: episode.description,
+      url: episode.program.url
     });
   });
   console.log('Starting server...');

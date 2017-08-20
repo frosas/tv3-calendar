@@ -10,23 +10,34 @@ module.exports = async () => {
       return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
         return {
           start: el.querySelector('.hora-programa time').getAttribute('datetime'),
-          title: el.querySelector('.informacio-programa p strong').textContent
+          program: (() => {
+            const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
+            return {
+              title: pEl.textContent,
+              url: (() => {
+                const aEl = pEl.querySelector('a');
+                if (aEl) return aEl.getAttribute('href');
+              })()
+            };
+          })(),
+          title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
+          description: el.querySelector('.mostraInfo p').textContent.trim()
         };
       })
     }))
-    .map(program => ({
-      ...program,
-      start: moment.tz(program.start, 'Europe/Madrid').toDate()
+    .map(episode => ({
+      ...episode,
+      start: moment.tz(episode.start, 'Europe/Madrid').toDate()
     }))
-    .map((program, i, programs) => {
+    .map((episode, i, episodes) => {
       return {
-        ...program,
+        ...episode,
         end: (() => {
-          const next = programs[i + 1];
+          const next = episodes[i + 1];
           if (next) return next.start;
           // TODO Don't assume the last program ends at the same time the first 
           // program started that day.
-          const date = new Date(programs[0].start);
+          const date = new Date(episodes[0].start);
           date.setDate(date.getDate() + 1);
           return date;
         })()
