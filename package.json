@@ -1,7 +1,9 @@
 {
   "name": "calendari-programacio-tv3",
   "private": true,
-  "main": "src",
+  "scripts": {
+    "start": "node src"
+  },
   "dependencies": {
     "ical-generator": "^0.2.10",
     "puppeteer": "^0.9.0"
