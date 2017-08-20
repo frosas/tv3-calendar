@@ -1,0 +1,8 @@
+{
+  "name": "calendari-programacio-tv3",
+  "private": true,
+  "dependencies": {
+    "ical-generator": "^0.2.10",
+    "puppeteer": "^0.9.0"
+  }
+}
