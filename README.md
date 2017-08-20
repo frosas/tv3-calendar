@@ -4,6 +4,12 @@ A calendar in iCalendar (ICS) format for the channels of Catalan TV network [TV3
 
 This project is just an excuse for me to play with [Puppeteer](https://github.com/GoogleChrome/puppeteer).
 
+## Development
+
+```bash
+$ npm run watch
+```
+
 ## TODO
 
 - Add all available days.

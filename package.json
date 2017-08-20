@@ -2,10 +2,14 @@
   "name": "calendari-programacio-tv3",
   "private": true,
   "scripts": {
-    "start": "node src"
+    "start": "node src",
+    "watch": "nodemon -q -w src -x 'npm start'"
   },
   "dependencies": {
     "ical-generator": "^0.2.10",
     "puppeteer": "^0.9.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
