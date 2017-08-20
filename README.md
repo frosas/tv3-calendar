@@ -1,5 +1,7 @@
 # TV3 TV Guide Calendar
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/frosas/tv3-guide-calendar.svg)](https://greenkeeper.io/)
+
 A calendar in iCalendar (ICS) format for the channels of Catalan TV network [TV3](http://www.ccma.cat/tv3/).
 
 This project is just an excuse for me to play with [Puppeteer](https://github.com/GoogleChrome/puppeteer).
