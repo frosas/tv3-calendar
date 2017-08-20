@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const moment = require('moment-timezone');
 
 module.exports = async () => {
   // These args are because https://github.com/GoogleChrome/puppeteer/issues/290
@@ -13,7 +14,10 @@ module.exports = async () => {
         };
       })
     }))
-    .map(program => ({...program, start: new Date(program.start)}))
+    .map(program => ({
+      ...program,
+      start: moment.tz(program.start, 'Europe/Madrid').toDate()
+    }))
     .map((program, i, programs) => {
       return {
         ...program,
