@@ -15,6 +15,6 @@ const getEpisodes = require('./get-episodes');
   console.log('Starting server...');
   http
     .createServer((req, res) => calendar.serve(res))
-    .listen(process.env.PORT || 5000);
+    .listen(process.env.PORT || 80);
   console.log('Done');
 })();

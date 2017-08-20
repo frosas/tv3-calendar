@@ -1,7 +1,8 @@
 const puppeteer = require('puppeteer');
 
 module.exports = async () => {
-  const browser = await puppeteer.launch();
+  // These args are because https://github.com/GoogleChrome/puppeteer/issues/290
+  const browser = await puppeteer.launch({args: ['--no-sandbox']});
   const page = await browser.newPage();
   await page.goto('http://www.ccma.cat/tv3/programacio/canal-tv3/');
   const episodes = (await page.evaluate(() => {
