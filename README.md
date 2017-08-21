@@ -1,8 +1,8 @@
-# TV3 TV Guide Calendar
+# TV3 Guide Calendar
 
-A calendar in iCalendar (ICS) format for the channels of Catalan TV network [TV3](http://www.ccma.cat/tv3/).
+**Calendars (in iCalendar format) for the channels of Catalan TV network [TV3](http://www.ccma.cat/tv3/).**
 
-Public version available at http://tv3-guide-calendar.frosas.net/ics
+**Public version available at http://tv3-guide-calendar.frosas.net**
 
 This project is just an excuse for me to play with [Puppeteer](https://github.com/GoogleChrome/puppeteer).
 
