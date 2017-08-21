@@ -3,6 +3,9 @@ const express = require('express');
 const util = require('util');
 const getEpisodes = require('./get-episodes');
 
+// Show stack trace and end process
+process.on('unhandledRejection', error => { throw error; });
+
 const getCalendar = async () => {
   console.log('Retrieving episodes...');
   const calendar = ical({name: 'Programació de TV3'});
