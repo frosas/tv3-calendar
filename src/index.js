@@ -1,5 +1,6 @@
 const ical = require('ical-generator');
-const http = require('http');
+const express = require('express');
+const util = require('util');
 const getEpisodes = require('./get-episodes');
 
 const getCalendar = async () => {
@@ -28,8 +29,8 @@ const getCalendar = async () => {
     setTimeout(_updateCalendar, 10 /* min */ * 60 * 1000);
   })();
   console.log('Starting server...');
-  http
-    .createServer((req, res) => calendar.serve(res))
-    .listen(process.env.PORT || 80);
+  const app = express();
+  app.get('/ics', (req, res) => calendar.serve(res))
+  await util.promisify(app.listen.bind(app))(process.env.PORT || 80);
   console.log('Done');
 })();
