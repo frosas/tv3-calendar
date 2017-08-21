@@ -1,10 +1,11 @@
 const puppeteer = require('puppeteer');
 const moment = require('moment-timezone');
 
+// These args are because https://github.com/GoogleChrome/puppeteer/issues/290
+const whenBrowser = puppeteer.launch({args: ['--no-sandbox']});
+
 module.exports = async channelUrl => {
-  // These args are because https://github.com/GoogleChrome/puppeteer/issues/290
-  const browser = await puppeteer.launch({args: ['--no-sandbox']});
-  const page = await browser.newPage();
+  const page = await (await whenBrowser).newPage();
   await page.goto(channelUrl);
   const episodes = (await page.evaluate(() => {
       return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
@@ -43,6 +44,5 @@ module.exports = async channelUrl => {
         })()
       };
     });
-  browser.close(); // TODO Ensure it's called in case of error?
   return episodes;
 };
