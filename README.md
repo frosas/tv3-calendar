@@ -15,7 +15,6 @@ $ npm run watch
 ## TODO
 
 - Add all available days.
-- Add all network channels.
 - Add episode missing details (URLs, description, language(s), ...)
 - Link to a public calendar consuming from this service. I think Google Calendar offers this option. This calendar could work to showcase the service without having to subscribe to it.
 - `$ ag ' TODO '`

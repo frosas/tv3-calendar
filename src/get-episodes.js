@@ -1,11 +1,11 @@
 const puppeteer = require('puppeteer');
 const moment = require('moment-timezone');
 
-module.exports = async () => {
+module.exports = async channelUrl => {
   // These args are because https://github.com/GoogleChrome/puppeteer/issues/290
   const browser = await puppeteer.launch({args: ['--no-sandbox']});
   const page = await browser.newPage();
-  await page.goto('http://www.ccma.cat/tv3/programacio/canal-tv3/');
+  await page.goto(channelUrl);
   const episodes = (await page.evaluate(() => {
       return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
         return {
