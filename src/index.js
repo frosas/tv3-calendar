@@ -43,12 +43,12 @@ const delay = interval => new Promise(resolve => setTimeout(resolve, interval));
     return getCalendar();
   });
   let whenCalendar;
-  (async function _updateCalendar() {
+  (async function updateCalendar() {
     whenCalendar = retriedGetCalendar();
     // Avoid potential calls overlapping by not scheduling the next run until the
     // current one is over.
     await whenCalendar;
-    setTimeout(_updateCalendar, 10 /* min */ * 60 * 1000);      
+    setTimeout(updateCalendar, 10 /* min */ * 60 * 1000);      
   })();
 
   // Note we start the server without waiting for the calendar to be obtained.
