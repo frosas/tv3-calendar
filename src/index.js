@@ -27,19 +27,8 @@ const getCalendar = async () => {
   return calendar;
 };
 
-const retryify = func => {
-  return (...args) => {
-    return (function retriedFunc(params = {args, attempt: 1}) {
-      return Promise
-        .resolve()
-        .then(() => func(params))
-        .catch(error => retriedFunc({...params, error, attempt: params.attempt + 1}));
-    })();
-  };
-};
-
 (async () => {
-  const retriedGetCalendar = retryify(async ({error, attempt, args}) => {
+  const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
     if (error) console.error(error);
     if (attempt > 1) await util.delay(10 /* seconds */ * 1000);
     return getCalendar();
