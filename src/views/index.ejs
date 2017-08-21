@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendaris de la programació de TV3</title>
+  </head>
+  <body>
+    <h1>Calendaris de la programació de TV3</h1>
+    <ul>
+      <% Object.entries(channels).forEach(([channelId, channel]) => { %>
+        <li><a href="<%= `/ics/${channelId}` %>"><%= channel.title %></a></li>
+      <% }) %>
+    </ul>
+  </body>
+</html>

@@ -30,6 +30,9 @@ const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
   // Instead, we use its promise to serve it once it resolves.
   console.log('Starting server...');
   const app = express();
+  app.set('views', `${__dirname}/views`);
+  app.set('view engine', 'ejs');
+  app.get('/', (req, res) => res.render('index', {channels}));
   app.get('/ics', (req, res) => res.redirect('/ics/tv3'));
   app.get('/ics/:channelId', async (req, res) => {
     (await whenCalendarsByChannel[req.params.channelId]).serve(res);
