@@ -1,31 +1,10 @@
-const ical = require('ical-generator');
 const express = require('express');
 const nodeUtil = require('util');
-const getEpisodes = require('./get-episodes');
 const util = require('./util');
+const getCalendar = require('./get-calendar');
 
 // Show stack trace and end process
 process.on('unhandledRejection', error => { throw error; });
-
-const getCalendar = async () => {
-  console.log('Retrieving episodes...');
-  const calendar = ical({name: 'Programació de TV3'});
-  (await getEpisodes()).forEach(episode => {
-    calendar.createEvent({
-      start: episode.start,
-      end: episode.end,
-      summary: (() => {
-        let summary = episode.program.title;
-        if (episode.title) summary = `${summary} - ${episode.title}`;
-        return summary;
-      })(),
-      description: episode.description,
-      url: episode.program.url
-    });
-  });  
-  console.log('Episodes retrieved');
-  return calendar;
-};
 
 (async () => {
   const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
