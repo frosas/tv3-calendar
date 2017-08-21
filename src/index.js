@@ -1,7 +1,8 @@
 const ical = require('ical-generator');
 const express = require('express');
-const util = require('util');
+const nodeUtil = require('util');
 const getEpisodes = require('./get-episodes');
+const util = require('./util');
 
 // Show stack trace and end process
 process.on('unhandledRejection', error => { throw error; });
@@ -37,12 +38,10 @@ const retryify = func => {
   };
 };
 
-const delay = interval => new Promise(resolve => setTimeout(resolve, interval));
-
 (async () => {
   const retriedGetCalendar = retryify(async ({error, attempt, args}) => {
     if (error) console.error(error);
-    if (attempt > 1) await delay(10 /* seconds */ * 1000);
+    if (attempt > 1) await util.delay(10 /* seconds */ * 1000);
     return getCalendar();
   });
   let whenCalendar;
@@ -59,6 +58,6 @@ const delay = interval => new Promise(resolve => setTimeout(resolve, interval));
   console.log('Starting server...');
   const app = express();
   app.get('/ics', async (req, res) => (await whenCalendar).serve(res))
-  await util.promisify(app.listen.bind(app))(process.env.PORT || 80);
+  await nodeUtil.promisify(app.listen.bind(app))(process.env.PORT || 80);
   console.log('Server started');
 })();
