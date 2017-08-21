@@ -16,7 +16,7 @@ module.exports = async () => {
               title: pEl.textContent,
               url: (() => {
                 const aEl = pEl.querySelector('a');
-                if (aEl) return aEl.getAttribute('href');
+                if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
               })()
             };
           })(),
