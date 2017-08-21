@@ -15,7 +15,7 @@ $ npm run watch
 ## TODO
 
 - Add all available days.
-- Add episode missing details (URLs, description, language(s), ...)
+- Add episode missing details (language(s), age rating, ...)
 - Link to a public calendar consuming from this service. I think Google Calendar offers this option. This calendar could work to showcase the service without having to subscribe to it.
 - `$ ag ' TODO '`
 - How to get notified of issues in production?
