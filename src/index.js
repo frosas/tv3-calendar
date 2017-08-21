@@ -21,16 +21,34 @@ const getCalendar = async () => {
   });  
   console.log('Episodes retrieved');
   return calendar;
-}
+};
+
+const retryify = func => {
+  return (...args) => {
+    return (function retriedFunc(params = {args, attempt: 1}) {
+      return Promise
+        .resolve()
+        .then(() => func(params))
+        .catch(error => retriedFunc({...params, error, attempt: params.attempt + 1}));
+    })();
+  };
+};
+
+const delay = interval => new Promise(resolve => setTimeout(resolve, interval));
 
 (async () => {
+  const retriedGetCalendar = retryify(async ({error, attempt, args}) => {
+    if (error) console.error(error);
+    if (attempt > 1) await delay(10 /* seconds */ * 1000);
+    return getCalendar();
+  });
   let whenCalendar;
   (async function _updateCalendar() {
-    whenCalendar = getCalendar();
+    whenCalendar = retriedGetCalendar();
     // Avoid potential calls overlapping by not scheduling the next run until the
     // current one is over.
     await whenCalendar;
-    setTimeout(_updateCalendar, 10 /* min */ * 60 * 1000);
+    setTimeout(_updateCalendar, 10 /* min */ * 60 * 1000);      
   })();
 
   // Note we start the server without waiting for the calendar to be obtained.
