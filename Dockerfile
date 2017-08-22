@@ -19,6 +19,6 @@ COPY . .
 # Install Node packages. We delete any existing one to avoid using packages built 
 # for other platforms (e.g. this happens if running `docker build` in a Mac)
 RUN rm -rf node_modules
-RUN npm i
+RUN npm i -q
 
 CMD ["npm", "start"]
