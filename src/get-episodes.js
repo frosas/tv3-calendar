@@ -32,6 +32,9 @@ const usePage = async callback => {
   try {
     return await callback(page);
   } finally {
+    // Stop intercepting requests as calling abort() or continue() on them after
+    // the page is closed triggers unhandleable rejections.
+    page.removeListener('request', onRequest);
     await page.close();
   }
 };
