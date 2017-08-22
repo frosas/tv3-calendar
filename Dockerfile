@@ -10,8 +10,6 @@ RUN apt-get install -yq gconf-service libasound2 libatk1.0-0 libc6 libcairo2 \
   libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 \
   lsb-release xdg-utils wget
 
-EXPOSE 80
-
 WORKDIR /app
 
 COPY . .
@@ -22,3 +20,5 @@ RUN rm -rf node_modules
 RUN npm i -q
 
 CMD ["npm", "start"]
+
+EXPOSE 80
