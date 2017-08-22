@@ -9,7 +9,7 @@ This project is just an excuse for me to play with [Puppeteer](https://github.co
 ## Development
 
 ```bash
-$ npm run watch
+$ [PORT=5000] [DEBUG='app:*,-app:getEpisodes'] npm run watch
 ```
 
 ## TODO
