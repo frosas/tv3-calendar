@@ -4,7 +4,7 @@
   "main": "src",
   "scripts": {
     "start": "node .",
-    "watch": "PORT=5000 nodemon -w src -x 'npm start'"
+    "watch": "nodemon -w src -x 'npm start'"
   },
   "dependencies": {
     "debug": "^3.0.0",
