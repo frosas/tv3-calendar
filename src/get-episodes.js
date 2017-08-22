@@ -27,7 +27,7 @@ const getPageData = async channelUrl => {
       })
     }));
   } finally {
-    page.close();
+    await page.close();
   }
 };
 
