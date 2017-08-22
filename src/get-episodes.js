@@ -4,8 +4,33 @@ const Browser = require('./browser');
 
 const browser = new Browser();
 
+const getAcceptedTypes = request => {
+  return request.headers.get('Accept')
+    .split(',') // 'a/b;q=1,c/d' -> ['a/b;q=1', 'c/d']
+    .map(item => item.match(/([^;]*)/) && RegExp.$1); // 'a/b;q=1' -> 'a/b'
+}
+
+const skipOptionalRequests = async page => {
+  await page.setRequestInterceptionEnabled(true);
+  page.on('request', request => {
+    const acceptedTypes = getAcceptedTypes(request);
+    const isOptionalRequest = 
+      acceptedTypes.some(type => type.match(/^image\//)) &&
+      !acceptedTypes.some(type => type == 'text/html') ||
+      acceptedTypes.some(type => type == 'text/css');
+    if (isOptionalRequest) {
+      console.log('Canceling optional request', request.url, acceptedTypes);
+      request.abort();
+    } else {
+      console.log('Letting request through', request.url, acceptedTypes);
+      request.continue();          
+    }
+  });
+};
+
 const getPageData = async channelUrl => {
   const page = await browser.createPage();
+  await skipOptionalRequests(page);
   try {
     await page.goto(channelUrl);
     return (await page.evaluate(() => {
