@@ -15,7 +15,6 @@ const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
 
 (async () => {
   const whenCalendarsByChannel = {};
-  let whenCalendar;
   (async function updateCalendars() {
     Object.entries(channels).forEach(([channelId, channel]) => {
       whenCalendarsByChannel[channelId] = retriedGetCalendar(channel);
