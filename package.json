@@ -4,7 +4,7 @@
   "main": "src",
   "scripts": {
     "start": "node .",
-    "watch": "PORT=5000 nodemon -q -w src -x 'npm start'"
+    "watch": "PORT=5000 nodemon -w src -x 'npm start'"
   },
   "dependencies": {
     "ejs": "^2.5.7",
