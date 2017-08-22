@@ -12,12 +12,11 @@ RUN apt-get install -yq gconf-service libasound2 libatk1.0-0 libc6 libcairo2 \
 
 WORKDIR /app
 
-COPY . .
-
-# Install Node packages. We delete any existing one to avoid using packages built 
-# for other platforms (e.g. this happens if running `docker build` in a Mac)
-RUN rm -rf node_modules
+# See http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/
+COPY package.json .
 RUN npm i -q
+
+COPY . .
 
 CMD ["npm", "start"]
 
