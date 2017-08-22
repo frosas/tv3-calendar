@@ -32,7 +32,7 @@ const getPageData = async channelUrl => {
 };
 
 module.exports = async channelUrl => {
-  const episodes = (await getPageData(channelUrl))
+  return (await getPageData(channelUrl))
     .map(episode => ({
       ...episode,
       start: moment.tz(episode.start, 'Europe/Madrid').toDate()
@@ -51,5 +51,4 @@ module.exports = async channelUrl => {
         })()
       };
     });
-  return episodes;
 };
