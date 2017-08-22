@@ -10,28 +10,34 @@ const getAcceptedTypes = request => {
     .map(item => item.match(/([^;]*)/) && RegExp.$1); // 'a/b;q=1' -> 'a/b'
 }
 
-const skipOptionalRequests = async page => {
-  await page.setRequestInterceptionEnabled(true);
-  page.on('request', request => {
-    const acceptedTypes = getAcceptedTypes(request);
-    const isOptionalRequest = 
-      acceptedTypes.some(type => type.match(/^image\//)) &&
-      !acceptedTypes.some(type => type == 'text/html') ||
-      acceptedTypes.some(type => type == 'text/css');
-    if (isOptionalRequest) {
-      console.log('Canceling optional request', request.url, acceptedTypes);
-      request.abort();
-    } else {
-      console.log('Letting request through', request.url, acceptedTypes);
-      request.continue();          
-    }
-  });
+const onRequest = request => {
+  const acceptedTypes = getAcceptedTypes(request);
+  const isOptionalRequest = 
+    acceptedTypes.some(type => type.match(/^image\//)) &&
+    !acceptedTypes.some(type => type == 'text/html') ||
+    acceptedTypes.some(type => type == 'text/css');
+  if (isOptionalRequest) {
+    console.log('Canceling optional request', request.url, acceptedTypes);
+    request.abort();
+  } else {
+    console.log('Letting request through', request.url, acceptedTypes);
+    request.continue();          
+  }
+};
+
+const usePage = async callback => {
+  const page = await browser.createPage();
+  await page.setRequestInterceptionEnabled(true);  
+  page.on('request', onRequest);
+  try {
+    return await callback(page);
+  } finally {
+    await page.close();
+  }
 };
 
 const getPageData = async channelUrl => {
-  const page = await browser.createPage();
-  await skipOptionalRequests(page);
-  try {
+  return await usePage(async page => {
     await page.goto(channelUrl);
     return (await page.evaluate(() => {
       return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
@@ -51,10 +57,8 @@ const getPageData = async channelUrl => {
           description: el.querySelector('.mostraInfo p').textContent.trim()
         };
       })
-    }));
-  } finally {
-    await page.close();
-  }
+    }));    
+  });
 };
 
 module.exports = async channelUrl => {
