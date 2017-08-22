@@ -4,9 +4,43 @@ const Browser = require('./browser');
 
 const browser = new Browser();
 
-const getPageData = async channelUrl => {
+const getAcceptedTypes = request => {
+  return request.headers.get('Accept')
+    .split(',') // 'a/b;q=1,c/d' -> ['a/b;q=1', 'c/d']
+    .map(item => item.match(/([^;]*)/) && RegExp.$1); // 'a/b;q=1' -> 'a/b'
+}
+
+const onRequest = request => {
+  const acceptedTypes = getAcceptedTypes(request);
+  const isOptionalRequest = 
+    acceptedTypes.some(type => type.match(/^image\//)) &&
+    !acceptedTypes.some(type => type == 'text/html') ||
+    acceptedTypes.some(type => type == 'text/css');
+  if (isOptionalRequest) {
+    console.log('Canceling optional request', request.url, acceptedTypes);
+    request.abort();
+  } else {
+    console.log('Letting request through', request.url, acceptedTypes);
+    request.continue();          
+  }
+};
+
+const usePage = async callback => {
   const page = await browser.createPage();
+  await page.setRequestInterceptionEnabled(true);  
+  page.on('request', onRequest);
   try {
+    return await callback(page);
+  } finally {
+    // Stop intercepting requests as calling abort() or continue() on them after
+    // the page is closed triggers unhandleable rejections.
+    page.removeListener('request', onRequest);
+    await page.close();
+  }
+};
+
+const getPageData = async channelUrl => {
+  return await usePage(async page => {
     await page.goto(channelUrl);
     return (await page.evaluate(() => {
       return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
@@ -26,10 +60,8 @@ const getPageData = async channelUrl => {
           description: el.querySelector('.mostraInfo p').textContent.trim()
         };
       })
-    }));
-  } finally {
-    await page.close();
-  }
+    }));    
+  });
 };
 
 module.exports = async channelUrl => {
