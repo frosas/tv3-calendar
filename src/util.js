@@ -1,6 +1,8 @@
-exports.delay = interval => new Promise(resolve => setTimeout(resolve, interval));
+const util = exports;
 
-exports.retryify = func => {
+util.delay = interval => new Promise(resolve => setTimeout(resolve, interval));
+
+util.retryify = func => {
   return (...args) => {
     return (async function retriedFunc(params = {args, attempt: 1}) {
       try {
