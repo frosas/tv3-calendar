@@ -4,28 +4,32 @@ const moment = require('moment-timezone');
 // These args are because https://github.com/GoogleChrome/puppeteer/issues/290
 const whenBrowser = puppeteer.launch({args: ['--no-sandbox']});
 
-module.exports = async channelUrl => {
+const getPageData = async channelUrl => {
   const page = await (await whenBrowser).newPage();
   await page.goto(channelUrl);
-  const episodes = (await page.evaluate(() => {
-      return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
-        return {
-          start: el.querySelector('.hora-programa time').getAttribute('datetime'),
-          program: (() => {
-            const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
-            return {
-              title: pEl.textContent,
-              url: (() => {
-                const aEl = pEl.querySelector('a');
-                if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
-              })()
-            };
-          })(),
-          title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
-          description: el.querySelector('.mostraInfo p').textContent.trim()
-        };
-      })
-    }))
+  return (await page.evaluate(() => {
+    return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
+      return {
+        start: el.querySelector('.hora-programa time').getAttribute('datetime'),
+        program: (() => {
+          const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
+          return {
+            title: pEl.textContent,
+            url: (() => {
+              const aEl = pEl.querySelector('a');
+              if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
+            })()
+          };
+        })(),
+        title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
+        description: el.querySelector('.mostraInfo p').textContent.trim()
+      };
+    })
+  }));
+};
+
+module.exports = async channelUrl => {
+  const episodes = (await getPageData(channelUrl))
     .map(episode => ({
       ...episode,
       start: moment.tz(episode.start, 'Europe/Madrid').toDate()
