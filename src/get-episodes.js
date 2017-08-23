@@ -16,11 +16,12 @@ const onRequest = request => {
     acceptedTypes.some(type => type.match(/^image\//)) &&
     !acceptedTypes.some(type => type == 'text/html') ||
     acceptedTypes.some(type => type == 'text/css');
+  const context = {url: request.url, acceptedTypes};
   if (isOptionalRequest) {
-    console.log('Canceling optional request', request.url, acceptedTypes);
+    debug('Canceling optional request', context);
     request.abort();
   } else {
-    console.log('Letting request through', request.url, acceptedTypes);
+    debug('Letting request through', context);
     request.continue();          
   }
 };
