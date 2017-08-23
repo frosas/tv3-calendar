@@ -1,6 +1,6 @@
 const express = require('express');
 const nodeUtil = require('util');
-const debug = require('debug')('app:index');
+const log = require('debug')('app:index');
 const util = require('./util');
 const getCalendar = require('./get-calendar');
 const channels = require('./channels');
@@ -28,7 +28,7 @@ const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
 
   // Note we start the server without waiting for the calendar to be obtained.
   // Instead, we use its promise to serve it once it resolves.
-  debug('Starting web server...');
+  log('Starting web server...');
   const app = express();
   app.set('views', `${__dirname}/views`);
   app.set('view engine', 'ejs');
@@ -38,5 +38,5 @@ const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
     (await whenCalendarsByChannel[req.params.channelId]).serve(res);
   });
   await nodeUtil.promisify(app.listen.bind(app))(process.env.PORT || 80);
-  debug('Web server started');
+  log('Web server started');
 })();

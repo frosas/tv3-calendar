@@ -1,5 +1,5 @@
 const moment = require('moment-timezone');
-const debug = require('debug')('app:getEpisodes');
+const debug = require('debug')('app:getEpisodes:debug');
 const Browser = require('./browser');
 
 const browser = new Browser();

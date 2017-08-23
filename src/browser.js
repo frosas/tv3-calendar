@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer');
-const debug = require('debug')('app:browser');
+const log = require('debug')('app:browser');
 
 module.exports = class {
   async createPage() {
@@ -15,7 +15,7 @@ module.exports = class {
 
   _getInstance() {
     if (!this._whenInstance) {
-      debug('Starting instance...');
+      log('Starting instance...');
       // These args are because https://github.com/GoogleChrome/puppeteer/issues/290
       this._whenInstance = puppeteer.launch({args: ['--no-sandbox']});
     }
@@ -25,7 +25,7 @@ module.exports = class {
   _stopInstance() {
     if (!this._whenInstance) return;
     this._whenInstance.then(instance => {
-      debug('Stopping instance...');
+      log('Stopping instance...');
       instance.close();          
     });
     this._whenInstance = null;
