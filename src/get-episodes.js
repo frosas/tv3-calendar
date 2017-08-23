@@ -83,8 +83,8 @@ module.exports = async channelUrl => {
         end: (() => {
           const next = episodes[i + 1];
           if (next) return next.start;
-          // TODO Don't assume the last program ends at the same time the first 
-          // program started that day.
+          // Assume the last program of the day ends at the same time of the start 
+          // of the first program of that day.
           const date = new Date(episodes[0].start);
           date.setDate(date.getDate() + 1);
           return date;
