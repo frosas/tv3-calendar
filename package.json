@@ -12,7 +12,8 @@
     "express": "^4.15.4",
     "ical-generator": "^0.2.10",
     "moment-timezone": "^0.5.13",
-    "puppeteer": "^0.9.0"
+    "puppeteer": "^0.9.0",
+    "supports-color": "^4.2.1"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
