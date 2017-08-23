@@ -2,6 +2,8 @@ const moment = require('moment-timezone');
 const debug = require('debug')('app:getEpisodes:debug');
 const Browser = require('./browser');
 
+const ABORT_OPTIONAL_REQUESTS = false;
+
 const browser = new Browser();
 
 const getAcceptedTypes = request => {
@@ -18,24 +20,28 @@ const onRequest = request => {
     acceptedTypes.some(type => type == 'text/css');
   const context = {url: request.url, acceptedTypes};
   if (isOptionalRequest) {
-    debug('Canceling optional request', context);
+    debug('Aborting request', context);
     request.abort();
   } else {
-    debug('Letting request through', context);
+    debug('Continuing request', context);
     request.continue();          
   }
 };
 
 const usePage = async callback => {
   const page = await browser.createPage();
-  await page.setRequestInterceptionEnabled(true);  
-  page.on('request', onRequest);
+  if (ABORT_OPTIONAL_REQUESTS) {
+    await page.setRequestInterceptionEnabled(true);
+    page.on('request', onRequest);
+  }
   try {
     return await callback(page);
   } finally {
-    // Stop intercepting requests as calling abort() or continue() on them after
-    // the page is closed triggers unhandleable rejections.
-    page.removeListener('request', onRequest);
+    if (ABORT_OPTIONAL_REQUESTS) {
+      // Stop intercepting requests as calling abort() or continue() on them after
+      // the page is closed triggers unhandleable rejections.
+      page.removeListener('request', onRequest);
+    }
     await page.close();
   }
 };
