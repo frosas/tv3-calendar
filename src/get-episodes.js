@@ -1,4 +1,5 @@
 const moment = require('moment-timezone');
+const log = require('debug')('app:getEpisodes');
 const debug = require('debug')('app:getEpisodes:debug');
 const Browser = require('./browser');
 
@@ -46,28 +47,38 @@ const usePage = async callback => {
   }
 };
 
+const getPageActiveDayEpisodesData = async page => {
+  return page.evaluate(() => {
+    return [].slice.call(document.querySelectorAll('.tab-pane.active .programes li')).map(el => {
+      return {
+        start: el.querySelector('.hora-programa time').getAttribute('datetime'),
+        program: (() => {
+          const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
+          return {
+            title: pEl.textContent,
+            url: (() => {
+              const aEl = pEl.querySelector('a');
+              if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
+            })()
+          };
+        })(),
+        title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
+        description: el.querySelector('.mostraInfo p').textContent.trim()
+      };
+    })
+  });    
+};
+
 const getPageData = async channelUrl => {
-  return await usePage(async page => {
+  return usePage(async page => {
+    log(`Opening page ${channelUrl}...`);
     await page.goto(channelUrl);
-    return (await page.evaluate(() => {
-      return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
-        return {
-          start: el.querySelector('.hora-programa time').getAttribute('datetime'),
-          program: (() => {
-            const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
-            return {
-              title: pEl.textContent,
-              url: (() => {
-                const aEl = pEl.querySelector('a');
-                if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
-              })()
-            };
-          })(),
-          title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
-          description: el.querySelector('.mostraInfo p').textContent.trim()
-        };
-      })
-    }));    
+    return (await page.$$('.swiper-wrapper li a'))
+      .reduce(async (whenEpisodesData, el, i) => {
+        log(`Obtaining episodes data for today${i ? ` + ${i}` : ''}`);
+        await el.click();
+        return (await whenEpisodesData).concat(await getPageActiveDayEpisodesData(page));
+      }, Promise.resolve([]));
   });
 };
 
