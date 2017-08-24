@@ -46,9 +46,9 @@ const usePage = async callback => {
   }
 };
 
-const getPageDayEpisodesData = async page => {
+const getPageActiveDayEpisodesData = async page => {
   return (await page.evaluate(() => {
-    return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
+    return [].slice.call(document.querySelectorAll('.tab-pane.active .programes li')).map(el => {
       return {
         start: el.querySelector('.hora-programa time').getAttribute('datetime'),
         program: (() => {
@@ -71,7 +71,7 @@ const getPageDayEpisodesData = async page => {
 const getPageData = async channelUrl => {
   return await usePage(async page => {
     await page.goto(channelUrl);
-    return await getPageDayEpisodesData(page);
+    return await getPageActiveDayEpisodesData(page);
   });
 };
 
