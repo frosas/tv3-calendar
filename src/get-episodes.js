@@ -46,28 +46,32 @@ const usePage = async callback => {
   }
 };
 
+const getPageDayEpisodesData = async page => {
+  return (await page.evaluate(() => {
+    return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
+      return {
+        start: el.querySelector('.hora-programa time').getAttribute('datetime'),
+        program: (() => {
+          const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
+          return {
+            title: pEl.textContent,
+            url: (() => {
+              const aEl = pEl.querySelector('a');
+              if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
+            })()
+          };
+        })(),
+        title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
+        description: el.querySelector('.mostraInfo p').textContent.trim()
+      };
+    })
+  }));    
+};
+
 const getPageData = async channelUrl => {
   return await usePage(async page => {
     await page.goto(channelUrl);
-    return (await page.evaluate(() => {
-      return [].slice.call(document.querySelectorAll('.programes li')).map(el => {
-        return {
-          start: el.querySelector('.hora-programa time').getAttribute('datetime'),
-          program: (() => {
-            const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
-            return {
-              title: pEl.textContent,
-              url: (() => {
-                const aEl = pEl.querySelector('a');
-                if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
-              })()
-            };
-          })(),
-          title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
-          description: el.querySelector('.mostraInfo p').textContent.trim()
-        };
-      })
-    }));    
+    return await getPageDayEpisodesData(page);
   });
 };
 
