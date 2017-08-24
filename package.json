@@ -12,7 +12,7 @@
     "express": "^4.15.4",
     "ical-generator": "^0.2.10",
     "moment-timezone": "^0.5.13",
-    "puppeteer": "^0.9.0",
+    "puppeteer": "GoogleChrome/puppeteer#b8c3686e6d040fcb7dfec4c4e9866e3e6ac5c7fb",
     "supports-color": "^4.2.1"
   },
   "devDependencies": {

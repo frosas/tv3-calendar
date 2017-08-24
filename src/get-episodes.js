@@ -1,4 +1,5 @@
 const moment = require('moment-timezone');
+const log = require('debug')('app:getEpisodes');
 const debug = require('debug')('app:getEpisodes:debug');
 const Browser = require('./browser');
 
@@ -69,9 +70,15 @@ const getPageActiveDayEpisodesData = async page => {
 };
 
 const getPageData = async channelUrl => {
-  return await usePage(async page => {
+  return usePage(async page => {
+    log(`Opening page ${channelUrl}...`);
     await page.goto(channelUrl);
-    return await getPageActiveDayEpisodesData(page);
+    return (await page.$$('.swiper-wrapper li a'))
+      .reduce(async (whenEpisodesData, el, i) => {
+        log(`Obtaining episodes data for today${i ? ` + ${i}` : ''}`);
+        await el.click();
+        return (await whenEpisodesData).concat(await getPageActiveDayEpisodesData(page));
+      }, Promise.resolve([]));
   });
 };
 
