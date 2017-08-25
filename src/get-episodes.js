@@ -75,9 +75,17 @@ const getPageData = async channelUrl => {
     await page.goto(channelUrl);
     return (await page.$$('.swiper-wrapper li a'))
       .reduce(async (whenEpisodesData, el, i) => {
+        const episodesData = await whenEpisodesData;
         log(`Obtaining episodes data for today${i ? ` + ${i}` : ''}`);
         await el.click();
-        return (await whenEpisodesData).concat(await getPageActiveDayEpisodesData(page));
+        await page.waitFor(() => {
+          const activePane = document.querySelector('.swipertable + * .tab-pane.active');
+          if (activePane !== window._tv3CalendarActivePane) {
+            window._tv3CalendarActivePane = activePane;
+            return true;            
+          }
+        });
+        return episodesData.concat(await getPageActiveDayEpisodesData(page));
       }, Promise.resolve([]));
   });
 };

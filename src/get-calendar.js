@@ -3,7 +3,7 @@ const log = require('debug')('app:getCalendar');
 const getEpisodes = require('./get-episodes');
 
 module.exports = async channel => {
-  log(`Retrieving episodes for "${channel.title}"...`);
+  log(`Retrieving "${channel.title}" episodes...`);
   const calendar = ical({name: `Programació del canal ${channel.title}`});
   (await getEpisodes(channel.url)).forEach(episode => {
     calendar.createEvent({
@@ -18,7 +18,7 @@ module.exports = async channel => {
       url: episode.program.url
     });
   });  
-  log(`Episodes for "${channel.title}" retrieved`);
+  log(`${calendar.events().length} "${channel.title}" episodes retrieved`);
   return calendar;
 };
 
