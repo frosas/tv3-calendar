@@ -51,7 +51,7 @@ const usePage = async callback => {
 
 const getPageActiveDayEpisodesData = async page => {
   return page.evaluate(() => {
-    return [].slice.call(document.querySelectorAll('.tab-pane.active .programes li')).map(el => {
+    return [].slice.call(document.querySelectorAll('.swipertable + * .tab-pane.active .programes li')).map(el => {
       return {
         start: el.querySelector('.hora-programa time').getAttribute('datetime'),
         program: (() => {
@@ -75,19 +75,13 @@ const getPageData = async channelUrl => {
   return usePage(async page => {
     log(`Opening page ${channelUrl}...`);
     await page.goto(channelUrl);
-    return (await page.$$('.swiper-wrapper li a'))
+    return (await page.$$('.swipertable li a'))
       .reduce(async (whenEpisodesData, el) => {
         const episodesData = await whenEpisodesData;
         const day = await page.evaluate(el => el.querySelector('.titol').textContent, el);
         log(`Obtaining episodes data for "${day}"...`);
         await el.click();
-        await page.waitFor(() => {
-          const activePane = document.querySelector('.swipertable + * .tab-pane.active');
-          if (activePane !== window._tv3CalendarActivePane) {
-            window._tv3CalendarActivePane = activePane;
-            return true;            
-          }
-        });
+        await page.waitForSelector('.swipertable + * .tab-pane.active *');
         return episodesData.concat(await getPageActiveDayEpisodesData(page));
       }, Promise.resolve([]));
   });
