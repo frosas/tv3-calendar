@@ -99,12 +99,9 @@ module.exports = async channelUrl => {
         end: (() => {
           const next = episodes[i + 1];
           if (next) return next.start;
-          // Assume the last program of the day ends at the same time of the start 
-          // of the first program of that day.
-          const date = new Date(episodes[0].start);
-          date.setDate(date.getDate() + 1);
-          return date;
         })()
       };
-    });
+    })
+    // Ignore episodes without an ending date. It should be only the latest episode.
+    .filter(episode => episode.end);
 };
