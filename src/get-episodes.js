@@ -57,14 +57,14 @@ const getPageActiveDayEpisodesData = async page => {
         program: (() => {
           const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
           return {
-            title: pEl.textContent,
+            title: pEl.textContent.trim(),
             url: (() => {
               const aEl = pEl.querySelector('a');
               if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
             })()
           };
         })(),
-        title: el.querySelector('.informacio-programa p:nth-child(2)').textContent,
+        title: el.querySelector('.informacio-programa p:nth-child(2)').textContent.trim(),
         description: el.querySelector('.mostraInfo p').textContent.trim()
       };
     })
