@@ -74,9 +74,10 @@ const getPageData = async channelUrl => {
     log(`Opening page ${channelUrl}...`);
     await page.goto(channelUrl);
     return (await page.$$('.swiper-wrapper li a'))
-      .reduce(async (whenEpisodesData, el, i) => {
+      .reduce(async (whenEpisodesData, el) => {
         const episodesData = await whenEpisodesData;
-        log(`Obtaining episodes data for today${i ? ` + ${i}` : ''}`);
+        const day = await page.evaluate(el => el.querySelector('.titol').textContent, el);
+        log(`Obtaining episodes data for "${day}"...`);
         await el.click();
         await page.waitFor(() => {
           const activePane = document.querySelector('.swipertable + * .tab-pane.active');
