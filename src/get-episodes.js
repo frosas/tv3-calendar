@@ -1,6 +1,7 @@
 const moment = require('moment-timezone');
 const log = require('debug')('app:getEpisodes');
 const debug = require('debug')('app:getEpisodes:debug');
+const browserDebug = require('debug')('app:getEpisodes:browser:debug');
 const Browser = require('./browser');
 
 const ABORT_OPTIONAL_REQUESTS = false;
@@ -31,6 +32,7 @@ const onRequest = request => {
 
 const usePage = async callback => {
   const page = await browser.createPage();
+  page.on('console', browserDebug);
   if (ABORT_OPTIONAL_REQUESTS) {
     await page.setRequestInterceptionEnabled(true);
     page.on('request', onRequest);
