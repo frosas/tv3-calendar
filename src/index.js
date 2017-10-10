@@ -22,8 +22,8 @@ const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
     });
     // Avoid potential calls overlapping by not scheduling the next run until the
     // current one is over.
-    setTimeout(updateCalendars, 10 /* min */ * 60 * 1000);      
     await util.everyPromise(Object.values(whenCalendarsByChannel));
+    setTimeout(updateCalendars, 10 /* min */ * 60 * 1000);
   })();
 
   // Note we start the server without waiting for the calendar to be obtained.
