@@ -5,6 +5,8 @@ const util = require('./util');
 const getCalendar = require('./get-calendar');
 const channels = require('./channels');
 
+const MINUTES = 60 * 1000;
+
 // Show stack trace and end process
 process.on('unhandledRejection', error => { throw error; });
 
@@ -16,15 +18,15 @@ const retriedGetCalendar = util.retryify(async ({error, attempt, args}) => {
 
 (async () => {
   const whenCalendarsByChannel = {};
-  (async function updateCalendars() {
-    Object.entries(channels).forEach(([channelId, channel]) => {
-      whenCalendarsByChannel[channelId] = retriedGetCalendar(channel);
-    });
-    // Avoid potential calls overlapping by not scheduling the next run until the
-    // current one is over.
-    await util.whenEvery(Object.values(whenCalendarsByChannel));
-    setTimeout(updateCalendars, 10 /* min */ * 60 * 1000);
-  })();
+  const updateChannelCalendarContinuously = async (id, channel) => {
+    await (whenCalendarsByChannel[id] = retriedGetCalendar(channel));
+    const delay = 10 * MINUTES;
+    log(`Sleeping for ${delay / MINUTES} minutes until next channel "${channel.title}" calendar retrieval...`);
+    setTimeout(() => updateChannelCalendarContinuously(id, channel), delay);
+  };
+  Object.entries(channels).forEach(([id, channel]) => {
+    updateChannelCalendarContinuously(id, channel);
+  });
 
   // Note we start the server without waiting for the calendar to be obtained.
   // Instead, we use its promise to serve it once it resolves.
