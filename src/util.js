@@ -24,7 +24,7 @@ util.retryify = func => {
  *   rejected. Similar to `Promise.all()` with the difference it both waits for 
  *   and returns all the promises no matter whether they were resolved or rejected.
  */
-util.everyPromise = async promises => {
+util.whenEvery = async promises => {
   let rejected;
   await Promise.all(promises.map(promise => promise.catch(() => { rejected = true; })));
   if (rejected) throw promises;
