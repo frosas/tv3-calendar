@@ -1,7 +1,7 @@
 const express = require("express");
 const nodeUtil = require("util");
 const log = require("debug")("app:index");
-const util = require("./util");
+const { retryify, delay } = require("./util");
 const getCalendar = require("./get-calendar");
 const channels = require("./channels");
 
@@ -12,13 +12,11 @@ process.on("unhandledRejection", error => {
   throw error;
 });
 
-const getCalendarRetryingly = util.retryify(
-  async ({ error, attempt, args }) => {
-    if (error) console.error(error);
-    if (attempt > 1) await util.delay(10 /* seconds */ * 1000);
-    return getCalendar(...args);
-  }
-);
+const getCalendarRetryingly = retryify(async ({ error, attempt, args }) => {
+  if (error) console.error(error);
+  if (attempt > 1) await delay(10 /* seconds */ * 1000);
+  return getCalendar(...args);
+});
 
 (async () => {
   const whenCalendarsByChannel = {};
