@@ -10,4 +10,5 @@ This project is just an excuse for me to play with [Puppeteer](https://github.co
 
 ```bash
 $ PORT=5000 DEBUG='app:*,-app:*:debug' npm run watch
+$ curl -v http://localhost:5000/ics/tv3
 ```
