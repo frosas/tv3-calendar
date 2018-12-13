@@ -1,41 +1,42 @@
-const moment = require('moment-timezone');
-const log = require('debug')('app:getEpisodes');
-const debug = require('debug')('app:getEpisodes:debug');
-const browserDebug = require('debug')('app:getEpisodes:browser:debug');
-const Browser = require('./browser');
+const moment = require("moment-timezone");
+const log = require("debug")("app:getEpisodes");
+const debug = require("debug")("app:getEpisodes:debug");
+const browserDebug = require("debug")("app:getEpisodes:browser:debug");
+const Browser = require("./browser");
 
 const ABORT_OPTIONAL_REQUESTS = false;
 
 const browser = new Browser();
 
 const getAcceptedTypes = request => {
-  return request.headers.get('Accept')
-    .split(',') // 'a/b;q=1,c/d' -> ['a/b;q=1', 'c/d']
+  return request.headers
+    .get("Accept")
+    .split(",") // 'a/b;q=1,c/d' -> ['a/b;q=1', 'c/d']
     .map(item => item.match(/([^;]*)/) && RegExp.$1); // 'a/b;q=1' -> 'a/b'
-}
+};
 
 const onRequest = request => {
   const acceptedTypes = getAcceptedTypes(request);
-  const isOptionalRequest = 
-    acceptedTypes.some(type => type.match(/^image\//)) &&
-    !acceptedTypes.some(type => type == 'text/html') ||
-    acceptedTypes.some(type => type == 'text/css');
-  const context = {url: request.url, acceptedTypes};
+  const isOptionalRequest =
+    (acceptedTypes.some(type => type.match(/^image\//)) &&
+      !acceptedTypes.some(type => type == "text/html")) ||
+    acceptedTypes.some(type => type == "text/css");
+  const context = { url: request.url, acceptedTypes };
   if (isOptionalRequest) {
-    debug('Aborting request', context);
+    debug("Aborting request", context);
     request.abort();
   } else {
-    debug('Continuing request', context);
-    request.continue();          
+    debug("Continuing request", context);
+    request.continue();
   }
 };
 
 const usePage = async callback => {
   const page = await browser.createPage();
-  page.on('console', browserDebug);
+  page.on("console", browserDebug);
   if (ABORT_OPTIONAL_REQUESTS) {
     await page.setRequestInterceptionEnabled(true);
-    page.on('request', onRequest);
+    page.on("request", onRequest);
   }
   try {
     return await callback(page);
@@ -43,7 +44,7 @@ const usePage = async callback => {
     if (ABORT_OPTIONAL_REQUESTS) {
       // Stop intercepting requests as calling abort() or continue() on them after
       // the page is closed triggers unhandleable rejections.
-      page.removeListener('request', onRequest);
+      page.removeListener("request", onRequest);
     }
     await page.close();
   }
@@ -51,57 +52,75 @@ const usePage = async callback => {
 
 const getPageActiveDayEpisodesData = async page => {
   return page.evaluate(() => {
-    return [].slice.call(document.querySelectorAll('.swipertable + * .tab-pane.active .programes li')).map(el => {
-      return {
-        start: el.querySelector('.hora-programa time').getAttribute('datetime'),
-        program: (() => {
-          const pEl = el.querySelector('.informacio-programa p:nth-child(1)');
-          return {
-            title: pEl.textContent.trim(),
-            url: (() => {
-              const aEl = pEl.querySelector('a');
-              if (aEl) return new URL(aEl.getAttribute('href'), location).toString();
-            })()
-          };
-        })(),
-        title: el.querySelector('.informacio-programa p:nth-child(2)').textContent.trim(),
-        description: el.querySelector('.mostraInfo p').textContent.trim()
-      };
-    })
-  });    
+    return [].slice
+      .call(
+        document.querySelectorAll(
+          ".swipertable + * .tab-pane.active .programes li"
+        )
+      )
+      .map(el => {
+        return {
+          start: el
+            .querySelector(".hora-programa time")
+            .getAttribute("datetime"),
+          program: (() => {
+            const pEl = el.querySelector(".informacio-programa p:nth-child(1)");
+            return {
+              title: pEl.textContent.trim(),
+              url: (() => {
+                const aEl = pEl.querySelector("a");
+                if (aEl)
+                  return new URL(aEl.getAttribute("href"), location).toString();
+              })()
+            };
+          })(),
+          title: el
+            .querySelector(".informacio-programa p:nth-child(2)")
+            .textContent.trim(),
+          description: el.querySelector(".mostraInfo p").textContent.trim()
+        };
+      });
+  });
 };
 
 const getPageData = async channelUrl => {
   return usePage(async page => {
     log(`Opening page ${channelUrl}...`);
     await page.goto(channelUrl);
-    return (await page.$$('.swipertable li a'))
-      .reduce(async (whenEpisodesData, el) => {
+    return (await page.$$(".swipertable li a")).reduce(
+      async (whenEpisodesData, el) => {
         const episodesData = await whenEpisodesData;
-        const day = await page.evaluate(el => el.querySelector('.titol').textContent, el);
+        const day = await page.evaluate(
+          el => el.querySelector(".titol").textContent,
+          el
+        );
         log(`Obtaining episodes data for "${day}"...`);
         await el.click();
-        await page.waitForSelector('.swipertable + * .tab-pane.active *');
+        await page.waitForSelector(".swipertable + * .tab-pane.active *");
         return episodesData.concat(await getPageActiveDayEpisodesData(page));
-      }, Promise.resolve([]));
+      },
+      Promise.resolve([])
+    );
   });
 };
 
 module.exports = async channelUrl => {
-  return (await getPageData(channelUrl))
-    .map(episode => ({
-      ...episode,
-      start: moment.tz(episode.start, 'Europe/Madrid').toDate()
-    }))
-    .map((episode, i, episodes) => {
-      return {
+  return (
+    (await getPageData(channelUrl))
+      .map(episode => ({
         ...episode,
-        end: (() => {
-          const next = episodes[i + 1];
-          if (next) return next.start;
-        })()
-      };
-    })
-    // Ignore episodes without an ending date. It should be only the latest episode.
-    .filter(episode => episode.end);
+        start: moment.tz(episode.start, "Europe/Madrid").toDate()
+      }))
+      .map((episode, i, episodes) => {
+        return {
+          ...episode,
+          end: (() => {
+            const next = episodes[i + 1];
+            if (next) return next.start;
+          })()
+        };
+      })
+      // Ignore episodes without an ending date. It should be only the latest episode.
+      .filter(episode => episode.end)
+  );
 };
