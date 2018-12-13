@@ -3,6 +3,7 @@ const log = require("debug")("app:getEpisodes");
 const debug = require("debug")("app:getEpisodes:debug");
 const browserDebug = require("debug")("app:getEpisodes:browser:debug");
 const Browser = require("./browser");
+const { delay } = require("./util");
 
 const ABORT_OPTIONAL_REQUESTS = false;
 
@@ -96,6 +97,9 @@ const getPageData = async channelUrl => {
         );
         log(`Obtaining episodes data for "${day}"...`);
         await el.click();
+        // Give some time for the page to remove the existing content.
+        // TODO Make it more resilient.
+        await delay(1 /* sec */ * 1000);
         await page.waitForSelector(".swipertable + * .tab-pane.active *");
         return episodesData.concat(await getPageActiveDayEpisodesData(page));
       },
