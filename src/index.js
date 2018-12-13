@@ -12,16 +12,18 @@ process.on("unhandledRejection", error => {
   throw error;
 });
 
-const retriedGetCalendar = util.retryify(async ({ error, attempt, args }) => {
-  if (error) console.error(error);
-  if (attempt > 1) await util.delay(10 /* seconds */ * 1000);
-  return getCalendar(...args);
-});
+const getCalendarRetryingly = util.retryify(
+  async ({ error, attempt, args }) => {
+    if (error) console.error(error);
+    if (attempt > 1) await util.delay(10 /* seconds */ * 1000);
+    return getCalendar(...args);
+  }
+);
 
 (async () => {
   const whenCalendarsByChannel = {};
   const updateChannelCalendarContinuously = async (id, channel) => {
-    await (whenCalendarsByChannel[id] = retriedGetCalendar(channel));
+    await (whenCalendarsByChannel[id] = getCalendarRetryingly(channel));
     const delay = 10 * MINUTES;
     log(
       `Sleeping for ${delay / MINUTES} minutes until next channel "${
