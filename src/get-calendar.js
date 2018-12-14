@@ -14,8 +14,12 @@ module.exports = async channel => {
         if (episode.title) summary = `${summary} - ${episode.title}`;
         return summary;
       })(),
-      description: episode.description,
-      url: episode.program.url
+      description: []
+        .concat(episode.description || [])
+        .concat(episode.program.url || [])
+        .join("\n\n")
+      // TODO Google Calendar doesn't support this field
+      // url: episode.program.url
     });
   });
   log(`${calendar.events().length} "${channel.title}" episodes retrieved`);
