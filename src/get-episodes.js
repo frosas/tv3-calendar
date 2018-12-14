@@ -88,6 +88,11 @@ const getPageData = async channelUrl => {
   return usePage(async page => {
     log(`Opening page ${channelUrl}...`);
     await page.goto(channelUrl);
+    // Remove tracking cookie dialog
+    await page.evaluate(() => {
+      const el = document.querySelector("#trackingCookie");
+      el && el.parentNode.removeChild(el);
+    });
     return (await page.$$(".swipertable li a")).reduce(
       async (whenEpisodesData, el) => {
         const episodesData = await whenEpisodesData;
@@ -97,9 +102,6 @@ const getPageData = async channelUrl => {
         );
         log(`Obtaining episodes data for "${day}"...`);
         await el.click();
-        // Give some time for the page to remove the existing content.
-        // TODO Make it more resilient.
-        await delay(1 /* sec */ * 1000);
         await page.waitForSelector(".swipertable + * .tab-pane.active *");
         return episodesData.concat(await getPageActiveDayEpisodesData(page));
       },
