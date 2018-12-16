@@ -7,15 +7,15 @@
     "watch": "nodemon -w src -x 'npm start'"
   },
   "dependencies": {
-    "debug": "^3.0.0",
+    "debug": "^4.1.0",
     "ejs": "^2.5.7",
-    "express": "^4.15.4",
+    "express": "^4.16.4",
     "ical-generator": "^0.2.10",
     "moment-timezone": "^0.5.13",
-    "puppeteer": "^0.11.0",
+    "puppeteer": "^1.11.0",
     "supports-color": "^4.2.1"
   },
   "devDependencies": {
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.18.8"
   }
 }
