@@ -1,4 +1,4 @@
-const getUrl = id => `http://www.ccma.cat/tv3/programacio/canal-${id}/`;
+const getUrl = id => `https://www.ccma.cat/tv3/programacio/canal-${id}/`;
 
 module.exports = {
   tv3: { title: "TV3", url: getUrl("tv3") }
