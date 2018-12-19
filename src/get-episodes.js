@@ -3,26 +3,15 @@ const log = require("debug")("app:getEpisodes");
 const debug = require("debug")("app:getEpisodes:debug");
 const browserDebug = require("debug")("app:getEpisodes:browser:debug");
 const Browser = require("./browser");
-const { delay } = require("./util");
-
-const ABORT_OPTIONAL_REQUESTS = false;
 
 const browser = new Browser();
 
-const getAcceptedTypes = request => {
-  return request.headers
-    .get("Accept")
-    .split(",") // 'a/b;q=1,c/d' -> ['a/b;q=1', 'c/d']
-    .map(item => item.match(/([^;]*)/) && RegExp.$1); // 'a/b;q=1' -> 'a/b'
-};
-
 const onRequest = request => {
-  const acceptedTypes = getAcceptedTypes(request);
-  const isOptionalRequest =
-    (acceptedTypes.some(type => type.match(/^image\//)) &&
-      !acceptedTypes.some(type => type == "text/html")) ||
-    acceptedTypes.some(type => type == "text/css");
-  const context = { url: request.url, acceptedTypes };
+  const resourceType = request.resourceType();
+  const isOptionalRequest = ["stylesheet", "image", "media", "font"].includes(
+    resourceType
+  );
+  const context = { url: request.url(), resourceType };
   if (isOptionalRequest) {
     debug("Aborting request", context);
     request.abort();
@@ -35,18 +24,14 @@ const onRequest = request => {
 const usePage = async callback => {
   const page = await browser.createPage();
   page.on("console", browserDebug);
-  if (ABORT_OPTIONAL_REQUESTS) {
-    await page.setRequestInterceptionEnabled(true);
-    page.on("request", onRequest);
-  }
+  await page.setRequestInterception(true);
+  page.on("request", onRequest);
   try {
     return await callback(page);
   } finally {
-    if (ABORT_OPTIONAL_REQUESTS) {
-      // Stop intercepting requests as calling abort() or continue() on them after
-      // the page is closed triggers unhandleable rejections.
-      page.removeListener("request", onRequest);
-    }
+    // Stop intercepting requests as calling abort() or continue() on them after
+    // the page is closed triggers unhandleable rejections.
+    page.removeListener("request", onRequest);
     await page.close();
   }
 };
