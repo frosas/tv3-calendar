@@ -1,37 +1,16 @@
 const moment = require("moment-timezone");
 const log = require("debug")("app:getEpisodes");
-const debug = require("debug")("app:getEpisodes:debug");
 const browserDebug = require("debug")("app:getEpisodes:browser:debug");
 const Browser = require("./browser");
 
 const browser = new Browser();
 
-const onRequest = request => {
-  const resourceType = request.resourceType();
-  const isOptionalRequest = ["stylesheet", "image", "media", "font"].includes(
-    resourceType
-  );
-  const context = { url: request.url(), resourceType };
-  if (isOptionalRequest) {
-    debug("Aborting request", context);
-    request.abort();
-  } else {
-    debug("Continuing request", context);
-    request.continue();
-  }
-};
-
 const usePage = async callback => {
   const page = await browser.createPage();
   page.on("console", browserDebug);
-  await page.setRequestInterception(true);
-  page.on("request", onRequest);
   try {
     return await callback(page);
   } finally {
-    // Stop intercepting requests as calling abort() or continue() on them after
-    // the page is closed triggers unhandleable rejections.
-    page.removeListener("request", onRequest);
     await page.close();
   }
 };
